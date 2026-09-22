@@ -1,5 +1,5 @@
 body {
-background-color: black;
+    background-color: black;
 display: flex;
 padding: 40px;
 }
@@ -10,3 +10,5 @@ canvas {
     max-width: 100%;
     height: auto;
 }
+
+
