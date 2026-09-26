@@ -4,18 +4,27 @@ const ctx = canvas.getContext("2d") // holt den 2D-Zeichenbereich und speichert 
 const playerWidth = 120 // spieler breite
 const playerHeight = 100 // spieler grose
 const playerSpeed = 15 // spieler schnelligheit
+const policeWidth = 120 // breite vom polizisten
+const policeHeight = 100 // hohe vom polizisten
+const policeSpeed = 1.5 // wie schnell der polizist lauft
 const groundOffset = 1 // spieler abstand von rand
 const gravity = 1.2 // schwerkraft
 const jumpStrength = 18 // sprungkraft
 
-let playerX = 0 // spieler abstand rand
+let playerX = 250 // der rauber startet ein stuck rechts
 let playerY = 0 // ganz oben am canvas
 let robber = null // da wird das roboter image gespeichert
+let police = null // da wird das polizisten bild gespeichert
+let policeX = 0 // der polizist startet links vom rauber
+let policeY = 0 // der polizist bleibt auf dem boden
+let isGameOver = false // das spiel ist noch nicht vorbei
 let isJumping = false // robber springt gerade nicht
 let jumpVelocity = 0 // aktuelle sprunggeschwindigkeit
 
 const background = new Image() // erstellt ein bildobjekt
 background.src = 'game image/game.jpg' // sagt welche datei geladen werden muss
+
+
 
 
 background.onload = () => {
@@ -26,12 +35,23 @@ background.onload = () => {
   robber.src = 'player images/robber.png' // zeigt das bild an
 
   robber.onload = () => { // warte bis das robber bild geladen ist
-    playerY = canvas.height - groundOffset - playerHeight // berechnet wo der robber unten auf den boden stehen soll
-    drawPlayer() // Zeichnet danach den Hintergrund + Robber auf den Canvas.
+    police = new Image() // erstellt das polizisten bild
+    police.src = 'player images/police.png' // zeigt das polizisten bild an
+
+    police.onload = () => { // warte bis das polizisten bild geladen ist
+      playerY = canvas.height - groundOffset - playerHeight // der rauber steht auf dem boden
+      policeY = canvas.height - groundOffset - policeHeight // der polizist steht auch auf dem boden
+      drawPlayer() // zeichnet den rauber und den polizisten
+    }
   }
 }
 
+
 document.addEventListener("keydown", (e) => { // Höre auf Tastendrücke.
+  if (isGameOver || robber === null || police === null) { // wartet auf die bilder oder auf einen neuen spielstart
+    return
+  }
+
   if (e.key === "d" || e.key === "ArrowRight") { // wenn d oder pfeil rechts gedruckt wird
     backgroundX -= playerSpeed
     playerX += playerSpeed // spieler geht nach rechts
@@ -55,7 +75,19 @@ document.addEventListener("keydown", (e) => { // Höre auf Tastendrücke.
   }
 })
 
-setInterval(() => { 
+setInterval(() => {
+  if (isGameOver || robber === null || police === null) { // wartet, bis beide bilder geladen sind
+    return
+  }
+
+  const policeTargetX = playerX - policeWidth + 10 // der polizist will den rauber erreichen
+
+  if (policeX < policeTargetX) { // lauft der rauber nach rechts weg?
+    policeX += policeSpeed // dann lauft der polizist hinterher
+  } else if (policeX > policeTargetX) { // lauft der rauber nach links?
+    policeX -= policeSpeed // dann lauft der polizist auch nach links
+  }
+
   if (isJumping) {
     playerY += jumpVelocity
     jumpVelocity += gravity
@@ -65,9 +97,18 @@ setInterval(() => {
       isJumping = false
       jumpVelocity = 0
     }
-
-    drawPlayer()  
   }
+
+  const policeCaughtRobber =
+    policeX + policeWidth >= playerX + 20 &&
+    playerY < policeY + policeHeight &&
+    playerY + playerHeight > policeY
+
+  if (policeCaughtRobber) { // der polizist hat den rauber gefangen
+    isGameOver = true
+  }
+
+  drawPlayer() // malt alles neu, damit die bewegung sichtbar ist
 }, 16)
 
 
@@ -78,6 +119,8 @@ let coinX = 120;
 let coinY = 700;
 let coinWidth = 130;
 let coinHeight = 50;
+
+
 
 
 const coinPositionsX = [300, 550, 800, 1050, 1500];
@@ -123,21 +166,37 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
       );
     }
   }
+  ctx.drawImage(police, policeX, policeY, policeWidth, policeHeight);
   ctx.drawImage(robber, playerX, playerY, playerWidth, playerHeight);
+
+  if (isGameOver) { // zeigt an, wenn der polizist gewonnen hat
+    ctx.fillStyle = "blue"
+    ctx.font = "bold 70px Arial"
+    ctx.textAlign = "center"
+    ctx.fillText("game over", canvas.width / 2, 100)
+  }
 }
 
-  
-
-
-
-
-
-
 
 
 
 
   
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
 
 
 
