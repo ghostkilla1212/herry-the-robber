@@ -33,6 +33,7 @@ background.onload = () => {
 
 document.addEventListener("keydown", (e) => { // Höre auf Tastendrücke.
   if (e.key === "d" || e.key === "ArrowRight") { // wenn d oder pfeil rechts gedruckt wird
+    backgroundX -= playerSpeed
     playerX += playerSpeed // spieler geht nach rechts
     if (playerX + playerWidth > canvas.width) { // Prüft, ob der Spieler über den rechten Rand hinausgeht
       playerX = canvas.width - playerWidth // Wenn ja, wird er genau an den rechten Rand gesetzt.
@@ -54,7 +55,7 @@ document.addEventListener("keydown", (e) => { // Höre auf Tastendrücke.
   }
 })
 
-setInterval(() => { //
+setInterval(() => { 
   if (isJumping) {
     playerY += jumpVelocity
     jumpVelocity += gravity
@@ -75,31 +76,48 @@ coin.src = "coin image/coin.png";
 
 let coinX = 120;
 let coinY = 700;
-let coinWidth = 40;
+let coinWidth = 130;
 let coinHeight = 50;
 
 
-const coinPositionsX = [120, 300, 400, 500, 900];
+const coinPositionsX = [120, 180, 240, 300, 360];
 let coinCollected = [];
+let backgroundX = 0;
+let nextCoinsX = 600;
 
 function drawPlayer() {
 ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+  ctx.drawImage(background, backgroundX, 0, canvas.width, canvas.height);
+  ctx.drawImage(background, backgroundX + canvas.width, 0, canvas.width, canvas.height);
 
-  for (let i = 0; i < coinPositionsX.length; i++) {
-    if (
-      playerX < coinPositionsX[i] + coinWidth &&
-      playerX + playerWidth > coinPositionsX[i] &&
+  if (backgroundX <= -canvas.width) {
+    backgroundX = 0;
+  }
+
+    for (let i = 0; i < coinPositionsX.length; i++) {
+    if (coinPositionsX[i] + backgroundX < -coinWidth) {
+      coinPositionsX[i] = nextCoinsX;
+      nextCoinsX += 300;
+      coinCollected[i] = false;
+    }
+
+
+    if (!coinCollected[i]) {
+      const hit =
+      playerX < coinPositionsX[i] + backgroundX + coinWidth &&
+      playerX + playerWidth > coinPositionsX[i] + backgroundX &&
       playerY < coinY + coinHeight &&
       playerY + playerHeight > coinY
-    ) {
-      coinCollected[i] = true;
+   
+      if (hit) {
+        coinCollected[i] = true;
+      }
     }
 
     if (!coinCollected[i]) {
       ctx.drawImage(
         coin,
-        coinPositionsX[i],
+        coinPositionsX[i] + backgroundX,
         coinY,
         coinWidth,
         coinHeight
@@ -109,6 +127,12 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   ctx.drawImage(robber, playerX, playerY, playerWidth, playerHeight);
 }
+
+  
+
+
+
+
 
 
 
