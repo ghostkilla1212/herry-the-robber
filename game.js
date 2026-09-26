@@ -80,24 +80,23 @@ let coinWidth = 130;
 let coinHeight = 50;
 
 
-const coinPositionsX = [120, 180, 240, 300, 360];
-let coinCollected = [];
+const coinPositionsX = [300, 550, 800, 1050, 1500];
+let coinCollected = Array(coinPositionsX.length).fill(false);
 let backgroundX = 0;
-let nextCoinsX = 600;
 
 function drawPlayer() {
 ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(background, backgroundX, 0, canvas.width, canvas.height);
   ctx.drawImage(background, backgroundX + canvas.width, 0, canvas.width, canvas.height);
-
+  
   if (backgroundX <= -canvas.width) {
     backgroundX = 0;
   }
 
     for (let i = 0; i < coinPositionsX.length; i++) {
     if (coinPositionsX[i] + backgroundX < -coinWidth) {
-      coinPositionsX[i] = nextCoinsX;
-      nextCoinsX += 300;
+      coinPositionsX[i] = -backgroundX + canvas.width + 100;
+
       coinCollected[i] = false;
     }
 
